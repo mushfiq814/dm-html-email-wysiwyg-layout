@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      #blocks {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .txtBlock {
+        width: 500px;
+        height: 500px;
+        background-color: #ddd;
+        margin: 10px 0;
+      }
+
+      .imgBlock {
+        width: 500px;
+        max-width: 100%;
+        height: auto;
+        background-color: #ddd;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- <button onclick="underline()">Underline Text</button> -->
+    <!-- <button onclick="link()">Link</button> -->
+    <button onclick="displayhtml()">Display HTML</button>
+    <!-- Make it content editable attribute true so that we can edit inside the div tag and also enable execCommand to edit content inside it.-->
+    <div id="blocks">
+    </div>
+
+    <button onclick="createTextBlock()">Add Text Block</button>
+    <button onclick="createImageUploadBox2()">Add Image Block</button>
+    
+    <div class="codeoutput">
+      <!-- <pre> tags reserves whitespace and newline characters. -->
+      <pre class="htmloutput"></pre>
+    </div>
+    <script>
+      var globalTxtBlockCount = 0;
+      var globalImgBlockCount = 0;
+
+      // create default text block
+      window.addEventListener("load", createTextBlock(), false);
+      
+      // creates text box
+      function createTextBlock() {
+        var txtBlock = document.createElement('div');
+        txtBlock.id = "txtBlock-" + globalTxtBlockCount;
+        globalTxtBlockCount++;
+        txtBlock.classList.add('txtBlock');
+        txtBlock.contentEditable = true;
+        txtBlock.spellcheck = false;
+        document.getElementById('blocks').appendChild(txtBlock);
+      }
+
+      // create image box
+      function createImageUploadBox() {
+        var imgSelector = document.createElement('input');
+        imgSelector.type = 'file';
+        document.getElementById('blocks').appendChild(imgSelector);
+
+        // listener for when image is uploaded
+        imgSelector.addEventListener('change', function() {
+          if (this.files && this.files[0]) {
+            var imgBlock = document.createElement('img');
+            imgBlock.id = 'imgBlock-' + globalImgBlockCount;
+            globalImgBlockCount++;
+            imgBlock.classList.add('imgBlock');
+
+            var imgBlob = URL.createObjectURL(this.files[0]);
+            imgBlock.src = imgBlob; // set src to blob url
+            // blobToFile(imgBlock.src, 'myImage.png');
+            // var file = new File([imgBlob], "myImage.png");
+            download(imgBlob, "myImage.png", "image/png");
+
+            document.getElementById('blocks').removeChild(imgSelector); // remove selector
+            document.getElementById('blocks').appendChild(imgBlock); // add image display
+          }
+        });
+      }
+
+      function createImageUploadBox2() {
+        var imgSelector = document.createElement('input');
+        imgSelector.type = 'file';
+        document.getElementById('blocks').appendChild(imgSelector);
+
+        // listener for when image is uploaded
+        imgSelector.addEventListener('change', function() {
+          var file = this.files[0];
+          var reader = new FileReader();
+          reader.onloadend = function() {
+            console.log('RESULT', reader.result)
+          }
+          console.log('Here')
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // underlines the selected text
+      function underline() {
+        document.execCommand("underline", false, null);
+      }
+
+      // makes the selected text as hyperlink.
+      function link() {
+        var url = prompt("Enter the URL");
+        document.body.execCommand("createLink", false, url);
+      }
+
+      function blobToFile(theBlob, fileName){
+        // A Blob() is almost a File() - it's just missing the two properties below which we will add
+        theBlob.lastModifiedDate = new Date();
+        theBlob.name = fileName;
+        return theBlob;
+      }
+
+      // Function to download data to a file
+      function download(data, filename, type) {
+        var file = new Blob([data], {type: type});
+        if (window.navigator.msSaveOrOpenBlob) // IE10+
+          window.navigator.msSaveOrOpenBlob(file, filename);
+        else { // Others
+          var a = document.createElement("a");
+          url = URL.createObjectURL(file);
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function() {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);  
+          }, 0); 
+        }
+      }
+
+      // displays HTML of the output
+      function displayhtml() {
+        // set textContent of pre tag to the innerHTML of editable div. textContent can take any form of text and display it as it is without browser interpreting it. It also preserves white space and new line characters.
+        document.getElementsByClassName("htmloutput")[0].textContent = document.getElementById('blocks').innerHTML;
+      }
+    </script>
+  </body>
+</html>
