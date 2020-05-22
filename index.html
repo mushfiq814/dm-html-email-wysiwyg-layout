@@ -12,7 +12,7 @@
 
       .txtBlock {
         width: 500px;
-        height: 500px;
+        height: 100px;
         background-color: #ddd;
         margin: 10px 0;
       }
@@ -30,14 +30,16 @@
     <div id="blocks"></div>
     <button onclick="createTextBlock()">Add Text Block</button>
     <button onclick="createImageUploadBox()">Add Image Block</button>
+    <button onclick="sendEmail2()">Send Email</button>
     
     <script>
       var globalTxtBlockCount = 0;
       var globalImgBlockCount = 0;
+      var globalImgSrcBase64Encoded = [];
 
       // create default text block
       window.addEventListener("load", createTextBlock(), false);
-      
+
       // creates text box
       function createTextBlock() {
         var txtBlock = document.createElement('div');
@@ -65,24 +67,101 @@
             globalImgBlockCount++;
             imgBlock.classList.add('imgBlock');
 
-            // create blob
-            var imgBlob = URL.createObjectURL(this.files[0]);
-            // set src to blob url
-            imgBlock.src = imgBlob;
-            // remove selector
-            document.getElementById('blocks').removeChild(imgSelector);
-            // add image display
-            document.getElementById('blocks').appendChild(imgBlock);
-
+            // image blob
+            // var imgBlob = URL.createObjectURL(this.files[0]);
+            var imgBlob = new Blob([this.files[0]], { type: 'image/png' });
+            console.log(imgBlob);
+            uploadContainerToFM(imgBlob);
+            
             // save image as Base64 encoded string
             var file = this.files[0];
             var reader = new FileReader();
             reader.onloadend = function() {
-              alert(reader.result);
+              // set encoded string as image source
+              imgBlock.src = reader.result;
+              console.log(reader.result);
+              globalImgSrcBase64Encoded.push({
+                [imgBlock.id]: reader.result
+              })
             }
             reader.readAsDataURL(file);
+
+            // remove selector
+            document.getElementById('blocks').removeChild(imgSelector);
+            // add image display
+            document.getElementById('blocks').appendChild(imgBlock);
           }
         });
+      }
+
+      function uploadContainerToFM(imgBlob) {
+        var db = 'https://disciplinedminds.fmi.filemaker-cloud.com/fmi/data/vLatest';
+        var url = db + '/databases/Dev%20DB/layouts/htmlEmails/records/4/containers/company_logo/1';
+        var fd = new FormData();
+        fd.append('name', 'Mushfiq');
+        fd.append('upload', imgBlob, 'image1.png');
+
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type':'multipart/form-data',
+            'Authorization':'Bearer f1e8979fda34d37bc48ef9be74770eea047853d76dd23b9a469f'
+          }
+        })
+        .then(res => res.json())
+        .then(data => console.log(data))
+      }
+    
+      function sendEmail() {
+
+        var url = "https://disciplinedminds.fmi.filemaker-cloud.com/fmi/data/vLatest/databases/Dev%20DB/layouts/htmlEmails%20Copy/records/4";
+        var http = new XMLHttpRequest();
+
+        http.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            var myArr = JSON.parse(this.responseText);
+            console.log(myArr);
+          }
+        };
+        
+        var jsonArr = [
+          "one", "two", "three"
+        ];
+        var jsonArrStr = JSON.stringify(jsonArr);
+        var body = {
+          "fieldData": {
+            "b64EncodedStrings": jsonArrStr
+          }
+        }
+        var bodyStr = JSON.stringify(body);
+        http.open('POST', url, true);
+        http.setRequestHeader('Authorization', 'Bearer 9f30c8482bdc9bb8cd9a27928a67bf66b610c0d7409b49d23234');
+        http.setRequestHeader('Content-Type', 'application/json');
+        http.send(bodyStr);
+        console.log();
+      }
+      
+      function sendEmail2() {
+        var url = "https://disciplinedminds.fmi.filemaker-cloud.com/fmi/data/vLatest/databases/Dev%20DB/layouts/htmlEmails%20Copy/records/4";
+        
+        var jsonArr = ["one", "two", "three"];
+        var jsonArrStr = JSON.stringify(jsonArr);
+        var body = {
+          "fieldData": {
+            "b64EncodedStrings": jsonArrStr
+          }
+        }
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type':'application/json',
+            'Authorization':'Bearer 628eaa12c71ae305313d425be9b202dba4379f6f66bab3101d79'
+          },
+          body: JSON.stringify(body)
+        })
+        .then(res => res.json())
+        .then(data => console.log(data))
+
       }
     </script>
   </body>
