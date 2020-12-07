@@ -1,4 +1,26 @@
-graphEquation();
+// graphEquation();
+
+var ctx = document.getElementById('myChart').getContext('2d');
+var myChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: ['a', 'b', 'c'],
+    datasets: [{
+      data: [1,2,3],
+      borderColor: ['rgba(255, 99, 132, 1)'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
+    }
+  }
+});
 
 function graphEquation() {
   var xMin = parseInt(document.getElementById('xMinText').value);
@@ -31,25 +53,25 @@ function graphEquation() {
     yAxis.push(evaluated); // push all other y coordinates
   }
 
-  var ctx = document.getElementById('myChart').getContext('2d');
-  var myChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: xLabels,
-      datasets: [{
-        data: yAxis,
-        borderColor: ['rgba(255, 99, 132, 1)'],
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: true
-          }
-        }]
-      }
-    }
-  });
+  removeData(myChart);
+  addData(myChart, xLabels, yAxis);
+  
+}
+
+function addData(chart, label, data) {
+  chart.data.labels.push(label);
+  chart.data.datasets.forEach((dataset) => dataset.data.push(data))
+  chart.update();
+}
+
+function removeData(chart) {
+  chart.data.labels.pop();
+  chart.data.datasets.forEach((dataset) => dataset.data.pop())
+  chart.update();
+}
+
+function renderLatex() {
+  var input = "\\[" + document.getElementById('latexInput').value + "\\]";
+  document.getElementById('latexOutput').innerHTML = input;
+  MathJax.typeset();
 }

@@ -3,23 +3,58 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/7.0.0/math.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/7.0.0/math.min.js"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script defer src="./script.js"></script>
     <title>Document</title>
     <style>
-      #myChart {
-        width: 100%;
-        height: 300px;
-      }
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 90%;
+  margin: 0 auto;
+}
+
+body > :nth-child(n) {
+  margin-top: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 5px 10px;
+}
+
+#myChart {
+  width: 100%;
+}
     </style>
   </head>
   <body>
-    <div id="blocks"></div>
+    <p class="input-label">Enter an equation</p>
     <input id='equationText' type='text' placeholder='Enter an equation' value='sin(x)'>
+    
+    <p class="input-label">Enter minimum x to plot</p>
     <input id='xMinText' type='text' placeholder='xMin' value='-5'>
+    
+    <p class="input-label">Enter maximum x to plot</p>
     <input id='xMaxText' type='text' placeholder='xMax' value='5'>
+    
     <button onclick="graphEquation()">Graph</button>
+    
+    <p class="input-label">Enter LaTeX expression to render</p>
+    <input id='latexInput' type='text' placeholder='LaTeX goes here' value='\frac{-b\pm\sqrt{b^2-2ac}}{2a}'>
+    
+    <button onclick="renderLatex()">Render</button>
+    
+    <p id='latexOutput'>\[\LaTeX \text{ will be rendered here}\]</p>
+    
     <canvas id="myChart" width="400" height="400"></canvas>
   </body>
 </html>
